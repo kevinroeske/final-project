@@ -29,7 +29,18 @@
 <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
 <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
 
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.js"></script>
+<!--
+<script type="text/javascript" src="https://cdn.rawgit.com/wvega/timepicker/master/jquery.timepicker.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/wvega/timepicker/master/jquery.timepicker.css" />
 
+<script type="text/javascript" src="https://cdn.rawgit.com/jonthornton/jquery-timepicker/master/lib/bootstrap-datepicker.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/jonthornton/jquery-timepicker/master/lib/bootstrap-datepicker.css" />
+
+<script type="text/javascript" src="https://cdn.rawgit.com/jonthornton/jquery-timepicker/master/lib/site.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/jonthornton/jquery-timepicker/master/lib/site.css" />
+-->
 </head>
 
 <body>
@@ -78,8 +89,50 @@
        );
     });
   </script>
+  <br />
+  <article>
+  <br />
+  <i>Between the Hours of</i>
+  <div class="demo"
+  <p><input type="text" id="starttime" class="time" size="6"/></p>
+  </div>
+  <script>
+  $(function() {
+    $('#starttime').timepicker({
+    timeFormat: 'h:mm p',
+    interval: 15,
+    minTime: '12:00am',
+    maxTime: '11:45pm',
+    defaultTime: '12:00am',
+    startTime: '12:00am',
+    dynamic: false,
+    dropdown: true,
+    scrollbar: true
+  });
+});
+  </script>
+  <i>And</i>
+  <div class="demo">
+  <p><input type="text" id="endtime" class="time" size="6"/></p>
+  </div>
+  <script>
+  $(function() {
+    $('#endtime').timepicker({
+    timeFormat: 'h:mm p',
+    interval: 15,
+    minTime: '12:00am',
+    maxTime: '11:45pm',
+    defaultTime: '12:00am',
+    startTime: '12:00am',
+    dynamic: false,
+    dropdown: true,
+    scrollbar: true
+  });
+});
+  </script>
+  </article>
 
-<br /><input type="submit" value="Choose" />
+<br /><input type="submit" value="Choose Calendars" />
 </form>
 
     <!--
@@ -89,8 +142,10 @@
     prefer down then across). 
     -->
 {% if g.calendars is defined  %}
+<form action="/show_appointments">
   <div class="row">
   {% for cal in g.calendars if cal.selected %}
+	  <input type="checkbox" name="checked" value={{cal.id}}>
           <div class="col-md-4">
 	   {{ cal.summary }}
           </div>
@@ -99,8 +154,9 @@
          {% endif %}
   {% endfor %}
   </div>
-{% endif %}
-    
+  <input type="submit" id="submit" value="Show Appointments">
+</form>
+{% endif %}    
 
   </div>  <!-- container (for bootstrap) -->
   </body> </html>

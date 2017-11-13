@@ -185,6 +185,12 @@ def oauth2callback():
 #
 #####
 
+@app.route('/show_appointments')
+def show_appointments():
+    cal_list = str(request.values.getlist('checked'))
+    app.logger.debug("Calendars selected: " + str(cal_list))
+    return render_template('index.html')
+
 @app.route('/setrange', methods=['POST'])
 def setrange():
     """
