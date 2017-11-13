@@ -201,10 +201,11 @@ def show_appointments():
               calendarId=calendar["id"], timeMin=begin_time_stamp, timeMax=end_time_stamp, singleEvents=True,
               orderBy='startTime').execute()
             app.logger.debug("Events retreived: " + str(eventsResult))
-            for event in eventsResult.get('items', []):
-                if event.startTime < flask.session['end_time'] or event.endTime > flask.session['benig_time']:
+            for event in eventsResult['items']:
+                if arrow.get(event['start']['dateTime']) > arrow.get(flask.session['begin_date']):
                     events.append(event)
             app.logger.debug("Events dump: " + str(events))
+            flask.session['events'] = events
     return render_template('appointments.html')
 
 @app.route('/setrange', methods=['POST'])
@@ -225,8 +226,8 @@ def setrange():
     flask.session['begin_time'] = interpret_time(time_start)[:19][11:]
     flask.session['end_time'] = interpret_time(time_end)[:19][11:]
     app.logger.debug("Times saved as: " + flask.session['begin_time'] + " and " + flask.session['end_time'])
-    flask.session['begin_date'] = interpret_date(daterange_parts[0])[:10]
-    flask.session['end_date'] = interpret_date(daterange_parts[2])[:10]
+    flask.session['begin_date'] = interpret_date(daterange_parts[0])[:10]+"T"+flask.session['begin_time']
+    flask.session['end_date'] = interpret_date(daterange_parts[2])[:10]+"T"+flask.session['end_time']
     app.logger.debug("Setrange parsed {} - {}  dates as {} - {}".format(
       daterange_parts[0], daterange_parts[1], 
       flask.session['begin_date'], flask.session['end_date']))

@@ -38,7 +38,17 @@
 <div class="container">
 
 <h1>Appointments</h1>
-
+<br /><br />
+<div class="row">
+   {% for event in g.events %}
+           <div class="col-md-4">
+		   {{ event['summary'] }}
+</div>
+          {% if loop.index is divisibleby 3 %}
+           </div> <div class="row">
+          {% endif %}
+   {% endfor %}
+   </div>
 
 
 
