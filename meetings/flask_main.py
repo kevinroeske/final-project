@@ -187,9 +187,25 @@ def oauth2callback():
 
 @app.route('/show_appointments')
 def show_appointments():
-    cal_list = str(request.values.getlist('checked'))
-    app.logger.debug("Calendars selected: " + str(cal_list))
-    return render_template('index.html')
+    service = get_gcal_service(valid_credentials())
+    calendar_list = service.calendarList().list().execute()["items"]
+    cal_sum_list = str(request.values.getlist('checked'))
+    app.logger.debug("Calendars selected: " + str(cal_sum_list))
+    events = []
+    app.logger.debug("Times: " +flask.session['begin_time'] + " " + flask.session['end_time'])
+    begin_time_stamp = arrow.get(flask.session['begin_date'] + "T" + flask.session['begin_time']).isoformat()
+    end_time_stamp = arrow.get(flask.session['end_date'] + "T" + flask.session['end_time']).isoformat()
+    for calendar in calendar_list:
+        if calendar["summary"] in cal_sum_list:
+            eventsResult = service.events().list(
+              calendarId=calendar["id"], timeMin=begin_time_stamp, timeMax=end_time_stamp, singleEvents=True,
+              orderBy='startTime').execute()
+            app.logger.debug("Events retreived: " + str(eventsResult))
+            for event in eventsResult.get('items', []):
+                if event.startTime < flask.session['end_time'] or event.endTime > flask.session['benig_time']:
+                    events.append(event)
+            app.logger.debug("Events dump: " + str(events))
+    return render_template('appointments.html')
 
 @app.route('/setrange', methods=['POST'])
 def setrange():
@@ -203,8 +219,14 @@ def setrange():
     daterange = request.form.get('daterange')
     flask.session['daterange'] = daterange
     daterange_parts = daterange.split()
-    flask.session['begin_date'] = interpret_date(daterange_parts[0])
-    flask.session['end_date'] = interpret_date(daterange_parts[2])
+    time_start = str(request.form.get("starttime"))
+    time_end = str(request.form.get("endtime"))
+    app.logger.debug("Time range: " + time_start + " - " + time_end)
+    flask.session['begin_time'] = interpret_time(time_start)[:19][11:]
+    flask.session['end_time'] = interpret_time(time_end)[:19][11:]
+    app.logger.debug("Times saved as: " + flask.session['begin_time'] + " and " + flask.session['end_time'])
+    flask.session['begin_date'] = interpret_date(daterange_parts[0])[:10]
+    flask.session['end_date'] = interpret_date(daterange_parts[2])[:10]
     app.logger.debug("Setrange parsed {} - {}  dates as {} - {}".format(
       daterange_parts[0], daterange_parts[1], 
       flask.session['begin_date'], flask.session['end_date']))
