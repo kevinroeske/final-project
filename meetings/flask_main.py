@@ -189,23 +189,40 @@ def oauth2callback():
 def show_appointments():
     service = get_gcal_service(valid_credentials())
     calendar_list = service.calendarList().list().execute()["items"]
-    cal_sum_list = str(request.values.getlist('checked'))
+    app.logger.debug("calendar_list: " + str(calendar_list))
+    cal_sum_list = request.values.getlist('checked')
+    app.logger.debug("cal_sum_list: " + str(cal_sum_list))
     app.logger.debug("Calendars selected: " + str(cal_sum_list))
     events = []
     app.logger.debug("Times: " +flask.session['begin_time'] + " " + flask.session['end_time'])
     begin_time_stamp = arrow.get(flask.session['begin_date'] + "T" + flask.session['begin_time']).isoformat()
     end_time_stamp = arrow.get(flask.session['end_date'] + "T" + flask.session['end_time']).isoformat()
     for calendar in calendar_list:
-        if calendar["summary"] in cal_sum_list:
+        if calendar["id"] in cal_sum_list:
             eventsResult = service.events().list(
               calendarId=calendar["id"], timeMin=begin_time_stamp, timeMax=end_time_stamp, singleEvents=True,
               orderBy='startTime').execute()
             app.logger.debug("Events retreived: " + str(eventsResult))
             for event in eventsResult['items']:
-                if arrow.get(event['start']['dateTime']) > arrow.get(flask.session['begin_date']):
-                    events.append(event)
+                if 'dateTime' in event['start']:
+                    busy_date = arrow.get(event['start']['dateTime'])
+                else:
+                    busy_date = arrow.get(event['start']['date'])
+                if 'dateTime' in event['start']:
+                    busy_s_time = arrow.get(interpret_time(event['start']['dateTime']))
+                else:
+                    busy_s_time = arrow.get(busy_date.isoformat()[:10]+"T"+'00:00:00')
+                if 'dateTime' in event['end']:
+                    busy_e_time = arrow.get(interpret_time(event['end']['dateTime']))
+                else:
+                    busy_e_time = arrow.get(busy_date.isoformat()[:10]+"T"+'11:59:59')
+                if busy_date >= arrow.get(flask.session['begin_date']) and busy_date <= arrow.get(flask.session['end_date']):
+                    if busy_e_time >= arrow.get(interpret_time(flask.session['begin_time'])) and busy_s_time <= arrow.get(interpret_time(flask.session['end_time'])) and event['status'] == 'confirmed':
+                        events.append(event)
             app.logger.debug("Events dump: " + str(events))
-            flask.session['events'] = events
+            cooked_events = cook_events(events)
+            app.logger.debug("Cooked events: " + str(cooked_events))
+            flask.g.events = cooked_events
     return render_template('appointments.html')
 
 @app.route('/setrange', methods=['POST'])
@@ -363,6 +380,23 @@ def cal_sort_key( cal ):
        primary_key = "X"
     return (primary_key, selected_key, cal["summary"])
 
+def cook_events(events):
+    cooked = []
+    for event in events:
+        if 'dateTime' in event['start']:
+            start = event['start']['dateTime'][11:][:5]
+            date = event['start']['dateTime'][:10]
+        else:
+            start = "All day"
+            date = event['start']['date'][:10]
+        if 'dateTime' in event['end']:
+            end = event['end']['dateTime'][11:][:5]
+        else:
+            end = "All day"
+        summary = event['summary']
+        cooked.append({"date": date, "start" : start, "end": end, "summary": summary})
+    cooked = sorted(cooked, key=lambda k: arrow.get(k["date"]))
+    return cooked
 
 #################
 #

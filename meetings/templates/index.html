@@ -48,11 +48,6 @@
 
 <h1>Busy times</h1>
 
-<!--
-  -- If there are any warnings or other messages from a prior action,
-  -- they appear above the rest of the content, just until the next 
-  -- action.
-  -->
 
 {% with messages = get_flashed_messages() %}
   {% if messages %}
@@ -97,13 +92,15 @@
   <p><input type="text" id="starttime" name="starttime" class="time" size="6"/></p>
   </div>
   <script>
+  var start = "{{ session.begin_time }}"
+  var end = "{{ session.end_time }}"
   $(function() {
     $('#starttime').timepicker({
     timeFormat: 'h:mm p',
     interval: 15,
     minTime: '12:00am',
     maxTime: '11:45pm',
-    defaultTime: '12:00am',
+    defaultTime: start,
     startTime: '12:00am',
     dynamic: false,
     dropdown: true,
@@ -122,7 +119,7 @@
     interval: 15,
     minTime: '12:00am',
     maxTime: '11:45pm',
-    defaultTime: '12:00am',
+    defaultTime: end,
     startTime: '12:00am',
     dynamic: false,
     dropdown: true,
@@ -149,7 +146,7 @@
           <div class="col-md-4">
 	   {{ cal.summary }}
           </div>
-         {% if loop.index is divisibleby 3 %}
+         {% if loop.index is divisibleby 2 %}
           </div> <div class="row">
          {% endif %}
   {% endfor %}
