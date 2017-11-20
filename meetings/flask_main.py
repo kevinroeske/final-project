@@ -3,7 +3,7 @@ from flask import render_template
 from flask import request
 from flask import url_for
 import uuid
-
+import calculate_free_times
 import json
 import logging
 
@@ -224,8 +224,12 @@ def show_appointments():
             app.logger.debug("Events dump: " + str(events))
             cooked_events = cook_events(events)
             app.logger.debug("Cooked events: " + str(cooked_events))
-            free_time_list = get_free_times(cooked_events)
+            free_time_list = calculate_free_times.get_free_times(cooked_events, flask.session)
+            flask.g.events = cooked_events
+            app.logger.debug("Full busy blocks: " + str(cooked_events))
+            app.logger.debug("Free blocks: " + str(free_time_list))
             flask.g.freetime = free_time_list
+            
     return render_template('appointments.html')
 
 @app.route('/setrange', methods=['POST'])
@@ -400,46 +404,6 @@ def cook_events(events):
         cooked.append({"date": date, "start" : start, "end": end, "summary": summary})
     cooked = sorted(cooked, key=lambda k: arrow.get(k["date"]))
     return cooked
-
-def get_free_times(cooked_events):
-    return cooked_events
-
-def merge_events(ev1, ev2):
-    merged_event={}
-    start1 = ev1['start']
-    start2 = ev2['start']
-    end1 = ev1['end']
-    end2 = ev2['end']
-    
-    if start1 == 'All day' or start2 == 'All day':
-        merged_event['start'] = 'All day'
-        merged_event['end'] = 'All_day'
-        return merged_event
-
-    merged_event['start'] = min(start1, start2)
-    merged_event['end'] = max(end1, end2)
-    return merged_event
-
-def overlapping(ev1, ev2):
-    if ev1['date'] != ev2['date']:
-        return False
-    start1 = ev1['start']
-    start2 = ev2['start']
-    if start1 == 'All day' or start2 == 'All day':
-        return True
-    end1 = ev1['end']
-    end2 = ev2['end']
-    if start1 < end2 and start2 < end1:
-        return True
-    else:
-        return False
-
-def contains_overlapping(event_list):
-    for event1 in event_list:
-        for event2 in event_list:
-            if event1 != event2 and overlapping(event1, event2)
-                return True
-    return False
 
 #################
 #

@@ -37,14 +37,13 @@
 <body>
 <div class="container">
 
-<h1>Appointments</h1>
+<h1>You are busy on:</h1>
 <br /><br />
 <div class="row">
    {% for event in g.events %}
            <div class="col-md-4">
+	{% if not '00:00' in event.start and not '23:59' in event.end %}
 		<b> {{ event.date }}</b>
-		<br/><br/>
-		   {{ event.summary }}
 		<br/>
 		<br/> from
 		<br/> {{event.start}}
@@ -52,11 +51,34 @@
 		<br/> to
 		<br/> {{event.end}}
 		<br/><br/><br/>
+	{% endif %}
            </div>
+	   <br />
+   {% endfor %}
+   </div>
+<br/><br/>
+</div>
+<h1>You are free on:</h1>
+<br/><br/>
+<div class="row">
+   {% for event in g.freetime %}
+           <div class="col-md-4">
+                <b> {{ event.date }}</b>
+                <br/>
+                <br/> from
+                <br/> {{event.start}}
+                <br/>
+                <br/> to
+                <br/> {{event.end}}
+                <br/><br/><br/>
+           </div>
+           <br />
    {% endfor %}
    </div>
 
 
 
-</div>  <!-- container (for bootstrap) -->
+</div>
+
+  <!-- container (for bootstrap) -->
 </body> </html>
