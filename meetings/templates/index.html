@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
 <html lang="en"> <head>
-<title>Choose your Calendars</title>
+<title>Register</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <link rel="stylesheet" type="text/css"
@@ -31,129 +31,21 @@
 
 <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.js"></script>
-<!--
-<script type="text/javascript" src="https://cdn.rawgit.com/wvega/timepicker/master/jquery.timepicker.js"></script>
-<link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/wvega/timepicker/master/jquery.timepicker.css" />
 
-<script type="text/javascript" src="https://cdn.rawgit.com/jonthornton/jquery-timepicker/master/lib/bootstrap-datepicker.js"></script>
-<link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/jonthornton/jquery-timepicker/master/lib/bootstrap-datepicker.css" />
-
-<script type="text/javascript" src="https://cdn.rawgit.com/jonthornton/jquery-timepicker/master/lib/site.js"></script>
-<link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/jonthornton/jquery-timepicker/master/lib/site.css" />
--->
 </head>
 
-<body>
+<body style="background-color:darkblue; color:white; ">
+<center><img src="static/graphics/header.png" height="10%" width="100%" alt="Should be a header here."></center>
+<form action="/select">
 <div class="container">
-
-<h1>Busy times</h1>
-
-
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <ul class=flashes>
-    {% for message in messages %}
-      <li>{{ message }}</li>
-    {% endfor %}
-    </ul>
-  {% endif %}
-{% endwith %}
-
-<h2>Date range</h2>
-  <form action="/setrange" method="post">
-  <input type="text" name="daterange" size="12"
-    {% if session.daterange is defined %}
-         value="{{session.daterange}}"
-    {% endif %}
-     class="pull-down"
-     style="background: #fff; cursor: pointer; padding: 5px 10px;
-     border: 1px solid #ccc; width: 12em" >
-  <script type="text/javascript">
-  $(function() {
-  $('input[name="daterange"]').daterangepicker(
-    {    ranges: {
-           'Today': [moment(), moment()],
-           'Tomorrow':[moment().add(1, 'days'),
-                       moment().add(1, 'days')], 
-           'This week':[moment(), moment().endOf('week')],
-           'Next week':[moment().add(7, 'days').startOf('week'),
-                        moment().add(7, 'days').endOf('week')],
-           'This month':[moment(), moment().endOf('month')],
-           'Within two weeks':[moment(),moment().add(15, 'days')]
-        }}
-       );
-    });
-  </script>
-  <br />
-  <article>
-  <br />
-  <i>Between the Hours of</i>
-  <div class="demo"
-  <p><input type="text" id="starttime" name="starttime" class="time" size="6"/></p>
-  </div>
-  <script>
-  var start = "{{ session.begin_time }}"
-  var end = "{{ session.end_time }}"
-  $(function() {
-    $('#starttime').timepicker({
-    timeFormat: 'h:mm p',
-    interval: 15,
-    minTime: '12:00am',
-    maxTime: '11:45pm',
-    defaultTime: start,
-    startTime: '12:00am',
-    dynamic: false,
-    dropdown: true,
-    scrollbar: true
-  });
-});
-  </script>
-  <i>And</i>
-  <div class="demo">
-  <p><input type="text" id="endtime" name="endtime" class="time" size="6"/></p>
-  </div>
-  <script>
-  $(function() {
-    $('#endtime').timepicker({
-    timeFormat: 'h:mm p',
-    interval: 15,
-    minTime: '12:00am',
-    maxTime: '11:45pm',
-    defaultTime: end,
-    startTime: '12:00am',
-    dynamic: false,
-    dropdown: true,
-    scrollbar: true
-  });
-});
-  </script>
-  </article>
-
-<br /><input type="submit" value="Choose Calendars" />
-</form>
-
-    <!--
-    Show the calendar list (if we have it).  This will need to be turned into
-    a form from which calendars can be picked. Up to three entries are
-    shown in each row (but the order is across then down; I would
-    prefer down then across). 
-    -->
-{% if g.calendars is defined  %}
-<form action="/show_appointments">
-  <div class="row">
-  {% for cal in g.calendars if cal.selected %}
-	  <input type="checkbox" name="checked" value={{cal.id}}>
-          <div class="col-md-4">
-	   {{ cal.summary }}
-          </div>
-         {% if loop.index is divisibleby 2 %}
-          </div> <div class="row">
-         {% endif %}
-  {% endfor %}
-  </div>
-  <input type="submit" id="submit" value="Show Appointments">
-</form>
-{% endif %}    
-
-  </div>  <!-- container (for bootstrap) -->
-  </body> </html>
+<h1 style="color:lightgreen;"><center>Please Register for This Service</center></h1>
+<br/>
+<center>If you are already registered, you will be given the option to select a new set of schedules, or 
+continue with the ones already in our database.<br/>
+Either way, all we need is your name.<br/><br/>
+<input type="text" id="name" name="name" placeholder="Your full name">
+<input type="submit" id="submit" value="Continue">
+</center>
+</div>
+  <!-- container (for bootstrap) -->
+</body> </html>

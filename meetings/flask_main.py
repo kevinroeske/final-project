@@ -2,10 +2,14 @@ import flask
 from flask import render_template
 from flask import request
 from flask import url_for
+import pymongo
+from pymongo import MongoClient
 import uuid
 import calculate_free_times
 import json
 import logging
+
+
 
 # Date handling 
 import arrow # Replacement for datetime, based on moment.js
@@ -33,6 +37,28 @@ app = flask.Flask(__name__)
 app.debug=CONFIG.DEBUG
 app.logger.setLevel(logging.DEBUG)
 app.secret_key=CONFIG.SECRET_KEY
+#########
+#
+# The code for the mongo stuff is lifted from project 6
+#
+#########
+
+MONGO_CLIENT_URL = "mongodb://{}:{}@{}:{}/{}".format(
+    CONFIG.DB_USER,
+    CONFIG.DB_USER_PW,
+    CONFIG.DB_HOST,
+    CONFIG.DB_PORT,
+    CONFIG.DB)
+app.logger.debug("Using URL '{}'".format(MONGO_CLIENT_URL))
+
+try:
+    dbclient = MongoClient(MONGO_CLIENT_URL)
+    db = getattr(dbclient, CONFIG.DB)
+    app.logger.debug("Database acquired.")
+#    collection = db.dated
+except Exception as err:
+    app.logger.debug("Failed to access database.")
+    app.logger.debug(str(err))
 
 SCOPES = 'https://www.googleapis.com/auth/calendar.readonly'
 CLIENT_SECRET_FILE = CONFIG.GOOGLE_KEY_FILE  ## You'll need this
@@ -48,9 +74,16 @@ APPLICATION_NAME = 'MeetMe class project'
 @app.route("/index")
 def index():
   app.logger.debug("Entering index")
+  flask.session.clear();
+  app.logger.debug("Flask session state:" + str(flask.session))
   if 'begin_date' not in flask.session:
     init_session_values()
   return render_template('index.html')
+
+@app.route("/select")
+def select():
+    flask.session['user_name'] = request.form.get("name")
+    return render_template('select.html')
 
 @app.route("/choose")
 def choose():
@@ -67,7 +100,7 @@ def choose():
     gcal_service = get_gcal_service(credentials)
     app.logger.debug("Returned from get_gcal_service")
     flask.g.calendars = list_calendars(gcal_service)
-    return render_template('index.html')
+    return render_template('select.html')
 
 ####
 #
@@ -278,8 +311,8 @@ def init_session_values():
         tomorrow.format("MM/DD/YYYY"),
         nextweek.format("MM/DD/YYYY"))
     # Default time span each day, 8 to 5
-    flask.session["begin_time"] = interpret_time("9am")
-    flask.session["end_time"] = interpret_time("5pm")
+    flask.session["begin_time"] = interpret_time("9am")[:19][11:]
+    flask.session["end_time"] = interpret_time("5pm")[:19][11:]
 
 def interpret_time( text ):
     """

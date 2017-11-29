@@ -34,36 +34,20 @@
 
 </head>
 
-<body>
+<body style="background-color:darkblue; color:white;">
+<img src="static/graphics/header.png" height="15%" width="100%">
 <div class="container">
 
-<h1>You are busy on:</h1>
-<br /><br />
-<div class="row">
-   {% for event in g.events %}
-           <div class="col-md-4">
-	{% if not '00:00' in event.start and not '23:59' in event.end %}
-		<b> {{ event.date }}</b>
-		<br/>
-		<br/> from
-		<br/> {{event.start}}
-		<br/>
-		<br/> to
-		<br/> {{event.end}}
-		<br/><br/><br/>
-	{% endif %}
-           </div>
-	   <br />
-   {% endfor %}
-   </div>
 <br/><br/>
 </div>
-<form action="/index">
-<h1>You are free on:</h1>
+<form action="/index" style="padding-left: 10%; padding-right: 10%">
+<center><h1 style="color:lightgreen;">You are free on:</h1></center>
 <br/><br/>
 <div class="row">
    {% for event in g.freetime %}
-           <div class="col-md-4">
+           <div class="col-md-4" style="padding-left: 10%; padding-right: 10%;" >
+		<img src="static/graphics/divider.png" height="10%" width="70%">
+		<br/>
                 <b> {{ event.date }}</b>
                 <br/>
                 <br/> from
@@ -71,9 +55,9 @@
                 <br/>
                 <br/> to
                 <br/> {{event.end}}
-                <br/><br/><br/>
+		<br/><br/>
            </div>
-           <br />
+	   <br/>
    {% endfor %}
    </div>
 
@@ -81,7 +65,8 @@
 
 </div>
 <br/>
-<input type="submit" value="Choose Different Times/Dates/Calendars">
+<img src="static/graphics/divider.png" height="10%" width="100%"><br/><br/>
+<center><input type="submit" value="Choose Different Times/Dates/Calendars"></center>
 </form>
   <!-- container (for bootstrap) -->
 </body> </html>
