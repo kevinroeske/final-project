@@ -34,18 +34,19 @@
 
 </head>
 
-<body style="background-color:darkblue; color:white; ">
+<body style="background-color:#000010; color:white; ">
 <center><img src="static/graphics/header.png" height="10%" width="100%" alt="Should be a header here."></center>
-<form action="/select">
+<form action="/select" method="POST">
 <div class="container">
-<h1 style="color:lightgreen;"><center>Please Register for This Service</center></h1>
+<h1 style="color:lime;"><center>Please Register or Sign In for This Service</center></h1>
 <br/>
 <center>If you are already registered, you will be given the option to select a new set of schedules, or 
 continue with the ones already in our database.<br/>
 Either way, all we need is your name.<br/><br/>
-<input type="text" id="name" name="name" placeholder="Your full name">
+<input type="text" id="name" name="name" placeholder="Your full name" required="true">
 <input type="submit" id="submit" value="Continue">
 </center>
 </div>
+</form>
   <!-- container (for bootstrap) -->
 </body> </html>

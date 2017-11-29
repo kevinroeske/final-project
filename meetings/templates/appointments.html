@@ -34,21 +34,21 @@
 
 </head>
 
-<body style="background-color:darkblue; color:white;">
+<body style="background-color:#000010; color:white;">
 <img src="static/graphics/header.png" height="15%" width="100%">
 <div class="container">
 
 <br/><br/>
 </div>
-<form action="/index" style="padding-left: 10%; padding-right: 10%">
-<center><h1 style="color:lightgreen;">You are free on:</h1></center>
+<form action="/select" style="padding-left: 10%; padding-right: 10%">
+<center><h1 style="color:lime;">You are free on:</h1></center>
 <br/><br/>
 <div class="row">
    {% for event in g.freetime %}
            <div class="col-md-4" style="padding-left: 10%; padding-right: 10%;" >
-		<img src="static/graphics/divider.png" height="10%" width="70%">
+		<img src="static/graphics/divider3.png" height="10%" width="100%">
 		<br/>
-                <b> {{ event.date }}</b>
+                <b style="color:lime;"> {{ event.date }}</b>
                 <br/>
                 <br/> from
                 <br/> {{event.start}}
@@ -65,7 +65,7 @@
 
 </div>
 <br/>
-<img src="static/graphics/divider.png" height="10%" width="100%"><br/><br/>
+<img src="static/graphics/divider3.png" height="10%" width="100%"><br/><br/>
 <center><input type="submit" value="Choose Different Times/Dates/Calendars"></center>
 </form>
   <!-- container (for bootstrap) -->

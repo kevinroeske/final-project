@@ -4,6 +4,7 @@ from flask import request
 from flask import url_for
 import pymongo
 from pymongo import MongoClient
+import bson
 import uuid
 import calculate_free_times
 import json
@@ -37,6 +38,8 @@ app = flask.Flask(__name__)
 app.debug=CONFIG.DEBUG
 app.logger.setLevel(logging.DEBUG)
 app.secret_key=CONFIG.SECRET_KEY
+
+
 #########
 #
 # The code for the mongo stuff is lifted from project 6
@@ -55,10 +58,20 @@ try:
     dbclient = MongoClient(MONGO_CLIENT_URL)
     db = getattr(dbclient, CONFIG.DB)
     app.logger.debug("Database acquired.")
-#    collection = db.dated
+    collection = db.dated
 except Exception as err:
     app.logger.debug("Failed to access database.")
     app.logger.debug(str(err))
+
+def get_profiles():
+    """ 
+    Returns all memos in the database, in a form that
+    can be inserted directly in the 'session' object.
+    """
+    records = [ ] 
+    for record in collection.find( { "type": "profile" } ):
+        records.append(record)
+    return records
 
 SCOPES = 'https://www.googleapis.com/auth/calendar.readonly'
 CLIENT_SECRET_FILE = CONFIG.GOOGLE_KEY_FILE  ## You'll need this
@@ -76,13 +89,30 @@ def index():
   app.logger.debug("Entering index")
   flask.session.clear();
   app.logger.debug("Flask session state:" + str(flask.session))
-  if 'begin_date' not in flask.session:
-    init_session_values()
+  init_session_values()
   return render_template('index.html')
 
-@app.route("/select")
+@app.route("/select", methods=['POST'])
 def select():
-    flask.session['user_name'] = request.form.get("name")
+    state_object = {}
+    user_name = request.form['name']
+    flask.session['user_name'] = user_name
+    app.logger.debug("Name collected: " + flask.session['user_name'])
+    col = get_profiles()
+    app.logger.debug("Profiles found: " + str(col))
+    for profile in col:
+        if profile['name'] == user_name:
+            for key in profile['session']:
+                flask.session[key] = profile['session'][key]
+            app.logger.debug("Session restored: " + str(flask.session))
+            return render_template('select.html')
+    state_object['type'] = "profile"
+    state_object['name'] = flask.session['user_name']
+    state_object['session'] = dict(flask.session)
+    collection.delete_one({"name": state_object['name']})
+    collection.insert(state_object)
+    app.logger.debug("Profile details: " + str(state_object))
+    app.logger.debug("State saved.")    
     return render_template('select.html')
 
 @app.route("/choose")
