@@ -1,4 +1,8 @@
 # Local
+#
+*.ini
+*.json
+*.swp
 secrets/*
 client_secret.json
 CONFIG.py
