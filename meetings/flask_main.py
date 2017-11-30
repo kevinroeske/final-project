@@ -92,6 +92,16 @@ def index():
   init_session_values()
   return render_template('index.html')
 
+@app.route("/show_times")
+def show_times():
+    flask.g.freetime = flask.session['free_blocks']
+    app.logger.debug("Final free block list: " + str(flask.g.freetime))
+    return render_template('appointments.html')
+
+@app.route("/back_to_options")
+def back_to_options():
+    return render_template('select.html')
+
 @app.route("/select", methods=['POST'])
 def select():
     state_object = {}
@@ -248,8 +258,11 @@ def oauth2callback():
 #
 #####
 
-@app.route('/show_appointments')
-def show_appointments():
+@app.route('/people')
+def people():
+    for profile in get_profiles():
+        if profile['name'] == flask.session['user_name']:
+            adjusted_profile = profile
     service = get_gcal_service(valid_credentials())
     calendar_list = service.calendarList().list().execute()["items"]
     app.logger.debug("calendar_list: " + str(calendar_list))
@@ -289,11 +302,23 @@ def show_appointments():
             app.logger.debug("Cooked events: " + str(cooked_events))
             free_time_list = calculate_free_times.get_free_times(cooked_events, flask.session)
             flask.g.events = cooked_events
-            app.logger.debug("Full busy blocks: " + str(cooked_events))
             app.logger.debug("Free blocks: " + str(free_time_list))
             flask.g.freetime = free_time_list
+            app.logger.debug("Free times stored in cookie: " + str(flask.g.freetime))
+            adjusted_profile['session']['free_blocks'] = free_time_list
+            collection.delete_one({"name": flask.session['user_name']})
+            collection.insert(adjusted_profile)
+            flask.session.clear()
+            for field in  adjusted_profile['session']:
+                flask.session[field] = adjusted_profile['session'][field]
+            app.logger.debug("Session updated: " + str(flask.session))
+            app.logger.debug("Profile updated: " + str(adjusted_profile))
             
-    return render_template('appointments.html')
+    return render_template('people.html')
+
+#@app.route('/people')
+#def people():
+#    return render_template('people.html')
 
 @app.route('/setrange', methods=['POST'])
 def setrange():

@@ -14,7 +14,9 @@ def get_free_times(cooked_events, session_data):
         evening_start = session_data['end_time']
         evening_end = '23:59'
         morning_block = {'date': date, 'start': morning_start, 'end': morning_end}
+        print("Added morning block: " + str(morning_block))
         evening_block = {'date': date, 'start': evening_start, 'end': evening_end}
+        print("Added evening block: " + str(evening_block))
         cooked_events.append(morning_block)
         cooked_events.append(evening_block)
     while contains_overlapping(cooked_events):
@@ -22,30 +24,59 @@ def get_free_times(cooked_events, session_data):
             for event2 in cooked_events:
                 if overlapping(event1, event2):
                     merged_event=merge_events(event1, event2)
-                    if event1 in cooked_events:
+                    if event1 in cooked_events:                       
                         cooked_events.remove(event1)
                     if event2 in cooked_events:
                         cooked_events.remove(event2)
                     cooked_events.append(merged_event)
-                    app.logger.debug("Merged events: " + str(cooked_events))
+    app.logger.debug("Merged events: " + str(cooked_events))
     app.logger.debug("Busy Blocks: " + str(cooked_events))
 #    for day in arrow.Arrow.span_range('day', arrow.get(session_data['begin_date'][:10]), arrow.get(session_data['end_date'][:10])):
 #        for block in cooked_events:
 #            if block['date'] == day[0].isoformat()[:10]:
 #                blocks_by_day[day[0].isoformat()[:10]].append(block)
     cooked_events = sorted(cooked_events, key=lambda k: arrow.get(k["date"]))
-    index = 0
+    index = 1
     for event in cooked_events:
         if event['end'] != '23:59':
-            if cooked_events[index+1]['start'] == '00:00':
+            if cooked_events[index]['start'] == '00:00':
                 new_end = session_data['end_time']
             else:
-                new_end = cooked_events[index+1]['start']
-            free_times.append({'date': event['date'], 'start': event['end'], 'end': new_end})
+                new_end = cooked_events[index]['start']
+            if event['end'][:5] != new_end[:5]:
+                free_times.append({'date': event['date'], 'start': event['end'][:5], 'end': new_end[:5]})
         index += 1
-    app.logger.debug("Free Time Blocks: " + str(free_times))
+        if index == len(cooked_events):
+            break
+    print("Full busy blocks: " + str(cooked_events))
+    while contains_overlapping(free_times):
+        for block1 in free_times:
+            for block2 in free_times:
+                if overlapping(block1, block2):
+                    merged_block = merge_free_blocks(block1, block2)
+                    if block1 in free_times:
+                        free_times.remove(block1)
+                    if block2 in free_times:
+                        free_times.remove(block2)
+                    if merged_block['start'] != merged_block['end']:
+                        free_times.append(merged_block)
+    free_times = sorted(free_times, key=lambda k: k['start'])
+    free_times = sorted(free_times, key=lambda j: j['date'])
+    print("Free Time Blocks: " + str(free_times))
     
     return free_times
+
+def merge_free_blocks(block1, block2):
+    merged_block={}
+    start1 = block1['start']
+    start2 = block2['start']
+    end1 = block1['end']
+    end2 = block2['end']
+
+    merged_block['date'] = block1['date']
+    merged_block['start'] = max(start1, start2)
+    merged_block['end'] = min(end1, end2)
+    return merged_block
 
 def merge_events(ev1, ev2):
     merged_event={}

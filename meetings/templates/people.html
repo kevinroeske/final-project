@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
 <html lang="en"> <head>
-<title>Appointments</title>
+<title>Who's Invited?</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <link rel="stylesheet" type="text/css"
@@ -34,39 +34,22 @@
 
 </head>
 
-<body style="background-color:#000010; color:white;">
-<img src="static/graphics/header.png" height="15%" width="100%">
+<body style="background-color:#000010; color:white; ">
+<center><img src="static/graphics/header.png" height="10%" width="100%" alt="Should be a header here."></center>
+<form action="/show_times">
+<div class="container">
+<h1 style="color:lime;"><center>Who would you like to invite to this meeting?</center></h1>
+<br/>
+Check the box next to each person's name and click "Continue."<br/>
+Or, click "Back" to go back to calendar/date/time selection.<br/><br/>
+<input type="submit" id="submit" value="Continue">
+</div>
+</form>
+<form action="/back_to_options">
 <div class="container">
 
-<br/><br/>
+<input type="submit" id="back" value="Back">
 </div>
-<form action="/choose" style="padding-left: 10%; padding-right: 10%">
-<center><h1 style="color:lime;">You are free on:</h1></center>
-<br/><br/>
-<div class="row">
-   {% for event in g.freetime %}
-           <div class="col-md-4" style="padding-left: 10%; padding-right: 10%;" >
-		<img src="static/graphics/divider3.png" height="10%" width="100%">
-		<br/>
-                <b style="color:lime;"> {{ event.date }}</b>
-                <br/>
-                <br/> from
-                <br/> {{event.start}}
-                <br/>
-                <br/> to
-                <br/> {{event.end}}
-		<br/><br/>
-           </div>
-	   <br/>
-   {% endfor %}
-   </div>
-
-
-
-</div>
-<br/>
-<img src="static/graphics/divider3.png" height="10%" width="100%"><br/><br/>
-<center><input type="submit" value="Choose Different Times/Dates/Calendars"></center>
 </form>
   <!-- container (for bootstrap) -->
 </body> </html>

@@ -48,7 +48,9 @@
 <div class="container">
 
 <h1 style="color:lime">Please choose a range of dates and times in which you'd like to consider meetings.</h1>
-
+<b>You will be redirected to Google's login page, to authorize this site to access your calendars. </b>
+<br/>
+<img src="static/graphics/divider3.png" height="5%" width="20%">
 <!--
 {% with messages = get_flashed_messages() %}
   {% if messages %}
@@ -131,6 +133,7 @@
   </article>
 
 <br /><input type="submit" value="Choose Calendars" />
+<b style="color:#00ff00"> *Note: If you change date or time, you must click here again to finalize changes</b>
 </form>
 
     <!--
@@ -140,7 +143,7 @@
     prefer down then across). 
     -->
 {% if g.calendars is defined  %}
-<form action="/show_appointments">
+<form action="/people">
   <div class="row">
   {% for cal in g.calendars if cal.selected %}
 	  <input type="checkbox" name="checked" value={{cal.id}}>
